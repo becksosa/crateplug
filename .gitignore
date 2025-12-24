@@ -1,4 +1,5 @@
 __pycache__/
+*.py[cod]
 venv/
 codepad.txt
 ffmpeg.exe
@@ -6,3 +7,4 @@ ffprobe.exe
 yt-dlp.exe
 build/
 dist/
+releases/

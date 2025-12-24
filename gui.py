@@ -32,6 +32,10 @@ def resource_path(relative_path):
     base = getattr(sys, "_MEIPASS", os.path.dirname(__file__))
     return os.path.join(base, relative_path)
 
+#prevent previous server instances from blocking connection
+class ReusableHTTPServer(HTTPServer):
+    allow_reuse_address = True
+
 #COLOR SCHEME
 YOUTUBE_BG = "#ecd6b8"
 YOUTUBE_SURFACE = "#FFFFFF"
@@ -131,6 +135,16 @@ class DownloaderGUI(QMainWindow): #main widget
         self.setAttribute(Qt.WA_StyledBackground, True)
         self.is_downloading = False
 
+    # brwser EXTwension listening server: this jawn right here below:
+
+        ExtensionRequestHandler.gui_instance = self #this injects the GUI instance into the HTTP request handler (this is why the gui_instance variable  is defined before)
+
+        def start_server():
+            server = ReusableHTTPServer(("127.0.0.1", 48721), ExtensionRequestHandler) #create reusable HTTP server on port 48721
+            server.serve_forever()
+
+        threading.Thread(target=start_server, daemon=True).start()
+
 #initialize UI
         self.setup_ui()
         self.load_settings()
@@ -149,15 +163,14 @@ class DownloaderGUI(QMainWindow): #main widget
 
     def get_remote_version(self):
         try:
-            url = "https://raw.githubusercontent.com/USERNAME/REPO/main/version.txt"
+            url = "https://raw.githubusercontent.com/becksosa/crateplug/refs/heads/main/version.txt"
             with urllib.request.urlopen(url, timeout=5) as response:
                 return response.read().decode("utf-8").strip()
         except Exception:
-            return '2.0 beta'
+            return None
 
 
     def check_for_updates(self):
-        print ("CHECK FOR UPDATES CALLED")
         local_version = self.get_local_version()
         remote_version = self.get_remote_version()
 
@@ -189,18 +202,10 @@ class DownloaderGUI(QMainWindow): #main widget
 
         if msg.clickedButton() == download_btn:
             import webbrowser
-            webbrowser.open("https://github.com/USERNAME/REPO/releases")
+            webbrowser.open("https://github.com/becksosa/crateplug/releases")
 
 
-        # brwser EXTwension listening server: this jawn right here below:
 
-        ExtensionRequestHandler.gui_instance = self #this injects the GUI instance into the HTTP request handler (this is why the gui_instance variable  is defined before)
-
-        def start_server():
-            server = HTTPServer(("127.0.0.1", 48721), ExtensionRequestHandler) #create HTTP server on port 48721
-            server.serve_forever()
-
-        threading.Thread(target=start_server, daemon=True).start()
 
 #set our settings (allows saved config for the folder)
     def load_settings(self):
@@ -418,12 +423,33 @@ class DownloaderGUI(QMainWindow): #main widget
         content_layout.addSpacing(8)
         self.output_box.setObjectName("outputBox")
 
-        link = QLabel('<a style="color:#D9D9C3;" href="https://discord.gg/WMTvJRDKw2">Discord - report bugs/get support</a>')
-        link.setOpenExternalLinks(True)
-        link.setObjectName("footerLink")
-        link.setAlignment(Qt.AlignCenter)
-        link.setCursor(Qt.PointingHandCursor)
-        main.addWidget(link)
+        footer = QWidget()
+        footer_layout = QHBoxLayout(footer)
+        footer_layout.setContentsMargins(0, 0, 0, 0)
+        footer_layout.setSpacing(20)  # space between links
+
+        footer_layout.addStretch()
+
+        discord_link = QLabel(
+            '<a style="color:#D9D9C3;" href="https://discord.gg/WMTvJRDKw2">'
+            'Discord</a>'
+        )
+        discord_link.setOpenExternalLinks(True)
+        discord_link.setCursor(Qt.PointingHandCursor)
+
+        docs_link = QLabel(
+            '<a style="color:#D9D9C3;" href="http://raw.githubusercontent.com/becksosa/crateplug/main/crateplug%20user%20manual.pdf">'
+            'User Manual</a>'
+        )
+        docs_link.setOpenExternalLinks(True)
+        docs_link.setCursor(Qt.PointingHandCursor)
+
+        footer_layout.addWidget(discord_link)
+        footer_layout.addWidget(docs_link)
+
+        footer_layout.addStretch()
+
+        main.addWidget(footer)
 
 
 
