@@ -1,0 +1,8 @@
+__pycache__/
+venv/
+codepad.txt
+ffmpeg.exe
+ffprobe.exe
+yt-dlp.exe
+build/
+dist/
