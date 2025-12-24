@@ -553,6 +553,7 @@ class DownloaderGUI(QMainWindow): #main widget
 QLineEdit {{
     background-color: {YOUTUBE_SURFACE};
     border: 1px solid {BORDER_COLOR};
+    color: #000000;
     padding: 8px;
     border-radius: 2px;
 }}
@@ -564,6 +565,7 @@ QLineEdit:focus {{
 QPushButton {{
     background-color: {DLBUTT};
     border: 1px solid #000000;
+    color: #000000;
     color: #ffffff;   
     font-size: 13px;   
     font-weight: bold;   
@@ -571,6 +573,15 @@ QPushButton {{
     border-radius: 2px;
 }}
 
+QToolButton {{
+    background-color: #D4D4D4;
+    border: none;
+    border-radius: 3px;
+}}
+
+QToolButton:hover {{
+    background-color: #A1A1A1;
+}}
 
 QCheckBox {{
     color: #000000;
